@@ -14,6 +14,6 @@ diContainer.registerClass("mouseInterface", Mouse);
 diContainer.registerClass("gltfLoader", GltfLoader);
 diContainer.registerClass("assetManager", AssetManager);
 diContainer.registerClass(controls.SPACE_SHIP_CONTROLS, SpaceShipControls);
-diContainer.registerClass("engine", Engine, diContainer); // TODO implement and use registerClassOnce
+diContainer.registerClass("engine", Engine);
 
 export default diContainer;

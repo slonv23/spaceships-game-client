@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import createEngine, {diContainer} from "./engine";
+import getOrCreateEngine, {diContainer} from "./engine";
 import {controls} from "./engine/control";
 import FlyingObject from "./engine/physics/object/FlyingObject";
 
@@ -20,12 +20,13 @@ export class Game {
     }
 
     async start() {
-        this.engine = await createEngine();
-        await this.engine.init();
+        this.engine = await getOrCreateEngine();
 
         // eslint-disable-next-line require-atomic-updates
-        this.engine.camera.position.z = 15;
-        this.engine.camera.matrixWorld.setPosition(new THREE.Vector3(0, 0, 15));
+        this.engine.camera.position.z = 3;
+        this.engine.camera.matrixWorld.setPosition(new THREE.Vector3(0, 0, 3));
+        // this.engine.camera.position.z = 15;
+        // this.engine.camera.matrixWorld.setPosition(new THREE.Vector3(0, 0, 15));
 
         const sprite = await this.engine.createSprite('aim');
         sprite.center.set(0.5, 0.5);

@@ -25,3 +25,7 @@ export function rotateWithinPlane(vd0, vd1, fi) {
         .add(vd1.clone().multiplyScalar(b));
     return result;
 }
+
+export function radiansToDegrees(radians) {
+    return 180 * radians / Math.PI;
+}

@@ -27,15 +27,12 @@ export default class Engine {
     /** @type {AbstractObject[]} */
     allObjects = [];
 
-    constructor(assetManager) {
+    constructor(assetManager, diContainer) {
         this.assetManager = assetManager;
-    }
-
-    postConstruct(diContainer) {
         this.diContainer = diContainer;
     }
 
-    init(scene, camera, renderer, {useDefaultLight = true} = {}) {
+    postConstruct({scene, camera, renderer, options} = {options: {useDefaultLight: true}}) {
         const width = window.innerWidth, height = window.innerHeight;
 
         if (!scene) {
@@ -59,7 +56,7 @@ export default class Engine {
         this.renderer = renderer;
         this.renderer.autoClear = false;
         
-        if (useDefaultLight) {
+        if (options.useDefaultLight) {
             const light = new THREE.HemisphereLight(0xbbbbff, 0x444422);
             light.position.set(0, 1, 0);
             this.scene.add(light);

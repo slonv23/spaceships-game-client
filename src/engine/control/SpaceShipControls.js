@@ -5,18 +5,18 @@
  */
 
 import * as THREE from "three";
-
-import AbstractControls from "./AbstractControls";
-import browserKeycodes from "../util/browser-keycodes";
 import FlyingObject from "../physics/object/FlyingObject";
+import browserKeycodes from "../util/browser-keycodes";
+import AbstractControls from "./AbstractControls";
+// import {radiansToDegrees} from "../util/math";
 
 export default class SpaceShipControls extends AbstractControls {
 
-    // TODO move these constants from FlyingObject
-    static wYawMax = 0.0006;
-    static wPitchMax = 0.0006;
+    static lenBtwSpaceshipAndPosLookAt = 5;
 
-    /** determines how fast wYaw and wPitch are converge to their target values
+    static lenBtwCameraAndPosLookAt = 8;
+
+    /** determines how fast yaw and pitch speeds are converge to their target values
      * target values are calculated based on current mouse position */
     static angularVelocityConvergeSpeed = 0.000001;
 
@@ -26,14 +26,18 @@ export default class SpaceShipControls extends AbstractControls {
     /** @type {Keyboard} */
     keyboard;
 
-    circleRadius;
+    /** @type {FlyingObject} */
+    gameObject
+
+    /** user can change yaw and pitch by moving cursor to desired direction,
+     * but only in specified limits */
+    controlCircleRadius;
+    controlCircleRadiusSq;
 
     /** @type {THREE.Vector3} */
     cameraX = new THREE.Vector3();
-
     /** @type {THREE.Vector3} */
     cameraY = new THREE.Vector3();
-
     /** @type {THREE.Vector3} */
     cameraZ = new THREE.Vector3();
 
@@ -46,16 +50,16 @@ export default class SpaceShipControls extends AbstractControls {
 
         this.mouse = mouseInterface;
         this.keyboard = keyboardInterface;
-        this.circleRadius = Math.min(window.innerWidth, window.innerHeight) * 0.2;
-        this.circleRadiusSq = this.circleRadius ** 2;
+        this.controlCircleRadius = Math.min(window.innerWidth, window.innerHeight) * 0.2;
+        this.controlCircleRadiusSq = this.controlCircleRadius ** 2;
     }
 
     /**
      * @param {THREE.PerspectiveCamera} camera 
-     * @param {THREE.Object3D} object3d 
+     * @param {FlyingObject} gameObject 
      */
-    init(camera, object3d) {
-        super.init(camera, object3d);
+    init(camera, gameObject) {
+        super.init(camera, gameObject);
         this.camera.matrixWorld.extractBasis(this.cameraX, this.cameraY, this.cameraZ);
     }
 
@@ -63,66 +67,59 @@ export default class SpaceShipControls extends AbstractControls {
      * @param {number} delta
      */
     updateCamera(delta) {
-        this._updateRotationSpeed();
-        this._updateAngularVelocity(delta);
-        this._updateMatrixWorld(this.camera.matrixWorld);
-        this.camera.updateMatrixWorld();
+        this._updateRotationAcceleration();
+        this._updateYawAndPitchVelocities(delta);
+        this._updateCamera(this.camera.matrixWorld, delta);
+
+        this.camera.matrixWorldInverse.getInverse(this.camera.matrixWorld);
     }
 
-    _updateRotationSpeed() {
+    _updateRotationAcceleration() {
         const pressedKey = this.keyboard.getFirstPressedKey();
         if (pressedKey === browserKeycodes.ARROW_LEFT) {
-            this.gameObject.rotationAcceleration = FlyingObject.rotationAccelerationAbs;
+            this.gameObject.angularAcceleration.z = FlyingObject.angularAccelerationAbs.z;
         } else if (pressedKey === browserKeycodes.ARROW_RIGHT) {
-            this.gameObject.rotationAcceleration = -FlyingObject.rotationAccelerationAbs;
+            this.gameObject.angularAcceleration.z = -FlyingObject.angularAccelerationAbs.z;
         } else {
-            this.gameObject.rotationAcceleration = 0;
+            this.gameObject.angularAcceleration.z = 0;
         }
     }
 
-    _updateAngularVelocity(delta) {
+    _updateYawAndPitchVelocities(delta) {
         const mousePos = this._calcMousePosInDimlessUnits();
-        
-        let wPitchTarget = -mousePos[1] * _self.wPitchMax,
-            wYawTarget = mousePos[0] * _self.wYawMax;
 
-        let wPitchIncreaseDirection = Math.sign(wPitchTarget - this.gameObject.wPitch),
-            wYawIncreaseDirection = Math.sign(wYawTarget - this.gameObject.wYaw);
+        let wPitchTarget = -mousePos[1] * FlyingObject.angularVelocityMax.y,
+            wYawTarget = mousePos[0] * FlyingObject.angularVelocityMax.x;
 
-        let wPitchNew = this.gameObject.wPitch + wPitchIncreaseDirection * _self.angularVelocityConvergeSpeed * delta,
-            wYawNew = this.gameObject.wYaw + wYawIncreaseDirection * _self.angularVelocityConvergeSpeed * delta;
+        let wPitchIncreaseDirection = Math.sign(wPitchTarget - this.gameObject.angularVelocity.y),
+            wYawIncreaseDirection = Math.sign(wYawTarget - this.gameObject.angularVelocity.x);
 
-        this.gameObject.wPitch = (wPitchIncreaseDirection < 0) != (wPitchNew > wPitchTarget)  ? wPitchTarget : wPitchNew;
-        this.gameObject.wYaw = (wYawIncreaseDirection < 0) != (wYawNew > wYawTarget)  ? wYawTarget : wYawNew;
+        let wPitchNew = this.gameObject.angularVelocity.y + wPitchIncreaseDirection * self.angularVelocityConvergeSpeed * delta,
+            wYawNew = this.gameObject.angularVelocity.x + wYawIncreaseDirection * self.angularVelocityConvergeSpeed * delta;
+
+        this.gameObject.angularVelocity.y = (wPitchIncreaseDirection < 0) != (wPitchNew > wPitchTarget)  ? wPitchTarget : wPitchNew;
+        this.gameObject.angularVelocity.x = (wYawIncreaseDirection < 0) != (wYawNew > wYawTarget)  ? wYawTarget : wYawNew;
     }
 
-    /**
-     * @param {THREE.Matrix4} matrixWorld 
-     */
-    _updateMatrixWorld(matrixWorld) {
-        const lenBetweenSpaceshipAndPosLookAt = 10, lenBetweenCameraAndPosLookAt = 8, // target
-            posLookAt = this.gameObject.object3d.position.clone().addScaledVector(this.gameObject.nz, -lenBetweenSpaceshipAndPosLookAt);
+    _updateCamera(matrixWorld, delta) {
+        const posLookAt = this._calcPosLookAt();
 
-        let cameraTargetDirection = posLookAt.clone().sub(this.camera.position).normalize();
-        let spaceshipDirection = this.gameObject.object3d.position.clone().sub(this.camera.position);
-        let lengthToTargetPos = spaceshipDirection.length();
+        let cameraTargetDirection = posLookAt.clone().sub(this.camera.position).normalize().negate();
 
-        this.cameraZ.copy(cameraTargetDirection.clone().negate());
+        // difference between target and current camera directions
+        let diff = cameraTargetDirection.clone().sub(this.cameraZ);
 
-        let lenToPosLookAtTargetDiffActual = lengthToTargetPos - lenBetweenCameraAndPosLookAt;
-        let multiplier = 0;
-        if (lenToPosLookAtTargetDiffActual > 0) {
-            multiplier = Math.min(lenToPosLookAtTargetDiffActual, 0.1 * lengthToTargetPos / lenBetweenCameraAndPosLookAt);
-        } else {
-            multiplier = Math.max(lenToPosLookAtTargetDiffActual, -0.1 * lenBetweenCameraAndPosLookAt / lengthToTargetPos);
-        }
+        // constant that controls the max difference of camera direction from spaceship direction
+        const convergeCoef = 140;
 
-        this.camera.position.copy(this.camera.position.clone()
-            .add(cameraTargetDirection.multiplyScalar(multiplier)));
+        // move camera direction closer to camera target direction
+        this.cameraZ.add(diff.multiplyScalar(diff.length() * convergeCoef)).normalize();
+
+        this.camera.position.copy(posLookAt.clone().add(this.cameraZ.clone().multiplyScalar(self.lenBtwCameraAndPosLookAt)));
 
         // vector which lies in rotation plane and perpendicular to velocity
-        let normalToVelocity = this.gameObject.nx.clone().multiplyScalar(this.gameObject.wYaw).add(
-            this.gameObject.ny.clone().multiplyScalar(this.gameObject.wPitch)
+        let normalToVelocity = this.gameObject.nx.clone().multiplyScalar(this.gameObject.angularVelocity.x).add(
+            this.gameObject.ny.clone().multiplyScalar(this.gameObject.angularVelocity.y)
         ).normalize();
 
         // normal to rotation plane (of the camera, because camera direction is different from velocity direction), will be y-axis of camera
@@ -131,8 +128,8 @@ export default class SpaceShipControls extends AbstractControls {
         // TODO add .assert that vector is normalized
 
         // normalToRotationPlane is always parallel to x-axe (the normal to the side) of spaceship, we need to adjust it
-        this.cameraY = normalToRotationPlane.multiplyScalar(this.gameObject.wYaw).add(
-            normalToVelocity.clone().multiplyScalar(this.gameObject.wPitch)
+        this.cameraY = normalToRotationPlane.multiplyScalar(this.gameObject.angularVelocity.x).add(
+            normalToVelocity.clone().multiplyScalar(this.gameObject.angularVelocity.y)
         ).normalize();
 
         this.cameraX = this.cameraY.clone().cross(this.gameObject.nz);
@@ -140,7 +137,7 @@ export default class SpaceShipControls extends AbstractControls {
         // cameraX and cameraY calculated based on gameObject.nz
         // we are intented to use cameraZ instead of gameObject.nz
         // so we must transform cameraX and cameraY from one coordinate system to another
-        this.rotateBasisVectors();
+        this._rotateBasisVectors();
 
         // adjust camera so spaceship will be a bit below the center of the window
         const L = 2;
@@ -155,7 +152,11 @@ export default class SpaceShipControls extends AbstractControls {
         matrixWorld.setPosition(cameraPosAdjusted);
     }
 
-    rotateBasisVectors() {
+    _calcPosLookAt() {
+        return this.gameObject.object3d.position.clone().addScaledVector(this.gameObject.nz, -self.lenBtwSpaceshipAndPosLookAt)
+    }
+
+    _rotateBasisVectors() {
         let normal = this.gameObject.nz.clone().cross(this.cameraZ);
         let cosphi = this.gameObject.nz.dot(this.cameraZ),
             sinphi = normal.length();
@@ -176,19 +177,19 @@ export default class SpaceShipControls extends AbstractControls {
     _calcMousePosInDimlessUnits() {
         const mousePos = this.mouse.position.slice();
 
-        // sphere bounded
+        // circle bounded
         var distFromCenterSq = mousePos[0]*mousePos[0] + mousePos[1]*mousePos[1];
-        if (distFromCenterSq > this.circleRadiusSq) {
-            var dimlessDist = this.circleRadius / Math.sqrt(distFromCenterSq);
+        if (distFromCenterSq > this.controlCircleRadiusSq) {
+            var dimlessDist = this.controlCircleRadius / Math.sqrt(distFromCenterSq);
             mousePos[0] = dimlessDist * mousePos[0];
             mousePos[1] = dimlessDist * mousePos[1];
         }
-        mousePos[0] /= this.circleRadius;
-        mousePos[1] /= this.circleRadius;
+        mousePos[0] /= this.controlCircleRadius;
+        mousePos[1] /= this.controlCircleRadius;
 
         return mousePos;
     }
 
 }
 
-const _self = SpaceShipControls;
+const self = SpaceShipControls;

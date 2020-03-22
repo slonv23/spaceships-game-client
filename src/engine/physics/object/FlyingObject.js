@@ -4,17 +4,14 @@ import AbstractObject from "./AbstractObject";
 
 export default class FlyingObject extends AbstractObject {
 
-    static wYawMax = 0.0006;
+    static angularAccelerationAbs = new THREE.Vector3(-1, -1, 0.000005); // TODO add accelerations for other angular speeds
 
-    static wPitchMax = 0.0006;
+    static angularVelocityMax = new THREE.Vector3(0.0006, 0.0006, 0.002);
 
-    static rotationSpeedMax = 0.01;
+    /** @type {THREE.Vector3} components: (wYaw, wPitch, wRoll) */
+    angularVelocity = new THREE.Vector3(0, 0, 0);
 
-    static rotationAccelerationAbs = 0.00001;
-
-    wYaw = 0; // Yaw angular velocity, relative to x-axe
-    wPitch = 0; // Pitch angular velocity, relative to y-axe
-    wRoll = 0;
+    angularAcceleration = new THREE.Vector3(0, 0, 0);
 
     quaternion = new THREE.Quaternion();
 
@@ -33,10 +30,6 @@ export default class FlyingObject extends AbstractObject {
 
     speedAbs = -0.005;
 
-    rotationSpeed =  0;
-
-    rotationAcceleration = 0;
-
     /**
      * @param {THREE.Object3D} object3d 
      */
@@ -46,20 +39,27 @@ export default class FlyingObject extends AbstractObject {
     }
 
     update(delta) {
-        if (this.rotationAcceleration === 0) {
-            this.rotationSpeed -= (this.rotationSpeed != 0 ? (Math.sign(this.rotationSpeed) * _self.rotationAccelerationAbs * delta) : 0);
+        if (this.angularAcceleration.z === 0) {
+            // if no accelaration smoothly stop rotating
+            this.angularVelocity.z -= (this.angularVelocity.z != 0 ? (Math.sign(this.angularVelocity.z) * self.angularAccelerationAbs.z * delta) : 0);
         } else {
-            this.rotationSpeed += this.rotationAcceleration * delta;
-            if (Math.abs(this.rotationSpeed) > _self.rotationSpeedMax) {
-                this.rotationSpeed = Math.sign(this.rotationSpeed) * _self.rotationSpeedMax;
+            this.angularVelocity.z += this.angularAcceleration.z * delta;
+            if (Math.abs(this.angularVelocity.z) > self.angularVelocityMax.z) {
+                this.angularVelocity.z = Math.sign(this.angularVelocity.z) * self.angularVelocityMax.z;
             }
         }
 
         /** Update quaternion */
         let multiplier = 0.5 * delta;
-        // use multiplier for rotation speed!! :
-        // this.quaternion.multiply(new THREE.Quaternion(this.wPitch * multiplier, -this.wYaw * multiplier, this.rotationSpeed * multiplier, 1));
-        this.quaternion.multiply(new THREE.Quaternion(this.wPitch * multiplier, -this.wYaw * multiplier, this.rotationSpeed * multiplier, 1));
+
+        let axis = new THREE.Vector3( 0, 0, 1);
+        let angle = Math.PI / 4;
+        let angularVelocityAdjusted = this.angularVelocity.clone().applyAxisAngle(axis, angle);
+
+        this.quaternion.multiply(new THREE.Quaternion(angularVelocityAdjusted.y * multiplier,
+                                                      -angularVelocityAdjusted.x * multiplier,
+                                                      angularVelocityAdjusted.z * multiplier,
+                                                      1));
         this.quaternion.normalize();
 
         /** Update axes */
@@ -67,9 +67,10 @@ export default class FlyingObject extends AbstractObject {
         this.ny = (new THREE.Vector3(0, 1, 0)).applyQuaternion(this.quaternion);
         this.nz = (new THREE.Vector3(0, 0, 1)).applyQuaternion(this.quaternion);
 
-        this.updateFakeAxes();
-        this.object3d.matrix.makeBasis(this.nxFake, this.nyFake, this.nz);
-        // this.object3d.matrix.makeBasis(this.nx, this.ny, this.nz);
+        // this.updateFakeAxes();
+        // this.object3d.matrix.makeBasis(this.nxFake, this.nyFake, this.nz);
+
+        this.object3d.matrix.makeBasis(this.nx, this.ny, this.nz);
         // this.object3d.matrix.makeRotationFromQuaternion(this.quaternion);
 
         /** Update position */
@@ -78,7 +79,10 @@ export default class FlyingObject extends AbstractObject {
     }
 
     updateFakeAxes() {
-        let tx = this.wYaw / _self.wYawMax / 2,
+        // this.nyFake.copy(this.ny.clone());
+        // this.nxFake.copy(this.nx.clone());
+
+        let tx = this.wYaw / self.wYawMax / 4,
             ty = Math.sqrt(1 - tx * tx);
 
         this.nyFake.copy(this.nx.clone().multiplyScalar(tx).addScaledVector(
@@ -94,4 +98,4 @@ export default class FlyingObject extends AbstractObject {
 
 }
 
-const _self = FlyingObject;
+const self = FlyingObject;

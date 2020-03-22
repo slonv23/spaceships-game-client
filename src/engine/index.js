@@ -1,6 +1,6 @@
 import diContainer from "./di-container"
 
-export default function createEngine() {
+export default function getOrCreateEngine() {
     return diContainer.get("engine");
 }
 
