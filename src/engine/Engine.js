@@ -151,7 +151,7 @@ export default class Engine {
             throw new Error('Class must be inherited from AbstractControls');
         }
 
-        controls.init(this.camera, gameObject);
+        controls.init(this.camera, gameObject, this);
         
         this._controls = controls;
     }

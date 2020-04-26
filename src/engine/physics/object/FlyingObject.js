@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import AbstractObject from "./AbstractObject";
+import {linearTransition} from "../../util/math";
 
 export default class FlyingObject extends AbstractObject {
 
@@ -30,35 +31,41 @@ export default class FlyingObject extends AbstractObject {
 
     speedAbs = -0.005;
 
+    rotAccChangeDirectionDt = 0;
+
+    rotAccStopDt = 0;
+
+    rotTargetAngleChange = 0;
+
+    rollAngleChange = 0;
+
+    angleChange = new THREE.Vector3(0, 0, 0);
+
     /**
      * @param {THREE.Object3D} object3d 
      */
     constructor(object3d) {
         super(object3d);
         this.quaternion.setFromAxisAngle(new THREE.Vector3(1, 1, 1), 0);
+
+        this._updateAngularVelocityAndAcceleration.tmpVector = new THREE.Vector3();
     }
 
-    update(delta) {
-        if (this.angularAcceleration.z === 0) {
-            // if no accelaration smoothly stop rotating
-            this.angularVelocity.z -= (this.angularVelocity.z != 0 ? (Math.sign(this.angularVelocity.z) * self.angularAccelerationAbs.z * delta) : 0);
-        } else {
-            this.angularVelocity.z += this.angularAcceleration.z * delta;
-            if (Math.abs(this.angularVelocity.z) > self.angularVelocityMax.z) {
-                this.angularVelocity.z = Math.sign(this.angularVelocity.z) * self.angularVelocityMax.z;
-            }
-        }
+    rollOnAngle(angleChange) {
+        this.rollAngleChange = angleChange;
+    }
+
+
+    update(dt) {
+        // slow down simulation for debugging:
+        // delta = delta / 20;
+        const angleChange = this._updateAngularVelocityAndAcceleration(dt);
+        this.angleChange = angleChange;
 
         /** Update quaternion */
-        let multiplier = 0.5 * delta;
-
-        let axis = new THREE.Vector3( 0, 0, 1);
-        let angle = Math.PI / 4;
-        let angularVelocityAdjusted = this.angularVelocity.clone().applyAxisAngle(axis, angle);
-
-        this.quaternion.multiply(new THREE.Quaternion(angularVelocityAdjusted.y * multiplier,
-                                                      -angularVelocityAdjusted.x * multiplier,
-                                                      angularVelocityAdjusted.z * multiplier,
+        this.quaternion.multiply(new THREE.Quaternion(angleChange.y * 0.5,
+                                                      -angleChange.x * 0.5,
+                                                      angleChange.z * 0.5,
                                                       1));
         this.quaternion.normalize();
 
@@ -67,33 +74,35 @@ export default class FlyingObject extends AbstractObject {
         this.ny = (new THREE.Vector3(0, 1, 0)).applyQuaternion(this.quaternion);
         this.nz = (new THREE.Vector3(0, 0, 1)).applyQuaternion(this.quaternion);
 
-        // this.updateFakeAxes();
-        // this.object3d.matrix.makeBasis(this.nxFake, this.nyFake, this.nz);
-
         this.object3d.matrix.makeBasis(this.nx, this.ny, this.nz);
         // this.object3d.matrix.makeRotationFromQuaternion(this.quaternion);
 
         /** Update position */
-        this.object3d.position.addScaledVector(this.nz, this.speedAbs * delta);
+        this.object3d.position.addScaledVector(this.nz, this.speedAbs * dt);
         this.object3d.matrix.setPosition(this.object3d.position);
     }
 
-    updateFakeAxes() {
-        // this.nyFake.copy(this.ny.clone());
-        // this.nxFake.copy(this.nx.clone());
+    /**
+     * @param {Number} dt timestep
+     * @returns {THREE.Vector3} angle change
+     */
+    _updateAngularVelocityAndAcceleration(dt) {
+        const angleChange = new THREE.Vector3(0, 0, 0);
 
-        let tx = this.wYaw / self.wYawMax / 4,
-            ty = Math.sqrt(1 - tx * tx);
+        angleChange.x = (this.angularVelocity.x + (dt * this.angularAcceleration.x) / 2) * dt;
+        angleChange.y = (this.angularVelocity.y + (dt * this.angularAcceleration.y) / 2) * dt;
+        if (Math.abs(this.rollAngleChange) > 0.0001) {
+            const result = linearTransition(this.rollAngleChange, this.angularVelocity.z, self.angularAccelerationAbs.z, dt);
+            this.angularVelocity.z = result.speed;
+            this.angularAcceleration.z = result.acceleration;
+            angleChange.z = result.distanceChange;
+        } else {
+            this.angularVelocity.z = 0;
+            this.angularAcceleration.z = 0;
+            angleChange.z = 0;
+        }
 
-        this.nyFake.copy(this.nx.clone().multiplyScalar(tx).addScaledVector(
-                this.ny,
-                ty
-            ));
-
-        this.nxFake.copy(this.nx.clone().multiplyScalar(ty).addScaledVector(
-            this.ny,
-            -tx
-        ));
+        return angleChange;
     }
 
 }
