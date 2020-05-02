@@ -1,8 +1,11 @@
-import diContainer from "./di-container"
+import {diContainer} from './globals';
 
-export default function getOrCreateEngine() {
-    return diContainer.get("engine");
+function createFrontendFacade(filepaths) {
+    diContainer.configure('assetManager', {filepaths});
+    return diContainer.get("frontendFacade");
 }
 
-export {Controls} from './control';
-export {diContainer};
+export {
+    diContainer,
+    createFrontendFacade,
+};
