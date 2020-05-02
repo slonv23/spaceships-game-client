@@ -145,6 +145,7 @@ export default class FlyingObjectControls extends AbstractControls {
         this.controlQuaternion.multiply(new THREE.Quaternion(0, 0, this.rotationSpeed * multiplier, 1));
     }
 
+    // eslint-disable-next-line no-unused-vars
     _updateYawAndPitchVelocities(delta) {
         const mousePos = this._calcMousePosInDimlessUnits(),
               wPitchTarget = -mousePos[1] * FlyingObject.angularVelocityMax.y,

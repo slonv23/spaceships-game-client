@@ -1,4 +1,5 @@
 /**
+ * @typedef {import('three')} THREE
  * @typedef {import('./asset-managment/AssetManager').default} AssetManager
  * @typedef {import('../state/StateManager').default} StateManager
  * @typedef {import('./Renderer').default} Renderer

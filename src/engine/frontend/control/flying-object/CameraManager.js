@@ -4,6 +4,7 @@
  * @typedef {import('./FlyingObjectControls').default} FlyingObjectControls
  */
 
+import * as THREE from 'three';
 import FlyingObject from "../../../physics/object/FlyingObject";
 import {linearTransition, createQuaternionForRotation} from "../../../util/math";
 
