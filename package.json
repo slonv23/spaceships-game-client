@@ -33,5 +33,6 @@
     "di-container-js": "^0.2.4",
     "three": "^0.110.0"
   },
-  "type": "module"
+  "type": "module",
+  "sideEffects": false
 }

@@ -5,6 +5,9 @@ const webpack = require('webpack');
 module.exports = {
   entry: './src/index.js',
   mode: "development",
+  optimization: {
+    minimize: true
+  },
   devtool: 'inline-source-map',
   target: 'web',
   output: {
@@ -29,5 +32,15 @@ module.exports = {
       THREE: 'three', //['three', 'default']
       //THREE: [path.resolve(__dirname, './src/three.js'), 'default']
     })
-  ]
+  ],
+  resolve: {
+    symlinks: false,
+    modules: [path.resolve(__dirname, 'node_modules')]
+    /*alias: {
+      "@/engine": path.resolve(__dirname, '../common/engine'),
+    }*/
+  },
+  resolveLoader: {
+    modules: [path.resolve(__dirname, 'node_modules')]
+  },
 };
