@@ -1,7 +1,8 @@
 // initialize required modules
 import './engine/frontend';
+import './engine/net';
 
-import {createFrontendFacade} from './engine';
+import {createFrontendFacade, diContainer} from './engine';
 import {controls} from "./engine/frontend/control";
 import FlyingObject from "./engine/physics/object/FlyingObject";
 
@@ -17,7 +18,10 @@ const filepaths = {
 export class Game {
 
     async start() {
-        this.frontendFacade = await createFrontendFacade(filepaths);
+        const webRtcNetworkClient = await diContainer.get('webRtcNetworkClient');
+        debugger;
+        await webRtcNetworkClient.connect();
+        /*this.frontendFacade = await createFrontendFacade(filepaths);
 
         const sprite = await this.frontendFacade.createSprite('aim');
         sprite.center.set(0.5, 0.5);
@@ -28,7 +32,7 @@ export class Game {
 
         const gameObject = await this.frontendFacade.createObject(FlyingObject, "smallSpaceFighter");
         this.frontendFacade.switchControls(controls.FLYING_OBJECT_CONTROLS, gameObject);
-        this.frontendFacade.startGameLoop();
+        this.frontendFacade.startGameLoop();*/
     }
 
     async addSpaceships() {
