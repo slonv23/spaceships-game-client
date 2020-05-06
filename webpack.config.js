@@ -5,9 +5,9 @@ const webpack = require('webpack');
 module.exports = {
   entry: './src/index.js',
   mode: "development",
-  optimization: {
+  /*optimization: {
     minimize: true
-  },
+  },*/
   devtool: 'inline-source-map',
   target: 'web',
   output: {
