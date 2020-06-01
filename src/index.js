@@ -34,26 +34,26 @@ export class Game {
 
         await this.addSpaceships();
 
-        const gameObject = await this.frontendFacade.createObject(FlyingObject, "smallSpaceFighter");
+        const gameObject = await this.frontendFacade.createObject("player1", FlyingObject, "smallSpaceFighter");
         // TODO rename switchControls to associate controls?
         this.frontendFacade.switchControls(controls.FLYING_OBJECT_CONTROLS, gameObject);
         this.frontendFacade.startGameLoop();*/
     }
 
     async addSpaceships() {
-        const spaceShip1 = await this.frontendFacade.createObject(FlyingObject, "smallSpaceFighter");
+        const spaceShip1 = await this.frontendFacade.createObject("bot1", FlyingObject, "smallSpaceFighter");
         spaceShip1.object3d.position.z = -4;
         spaceShip1.object3d.position.x = 5;
         spaceShip1.object3d.position.y = 5;
         spaceShip1.speedAbs = 0;
 
-        const spaceShip2 = await this.frontendFacade.createObject(FlyingObject, "smallSpaceFighter");
+        const spaceShip2 = await this.frontendFacade.createObject("bot2", FlyingObject, "smallSpaceFighter");
         spaceShip2.object3d.position.z = -10;
         spaceShip2.object3d.position.x = -3.5;
         spaceShip2.object3d.position.y = 4.5;
         spaceShip2.speedAbs = 0;
 
-        const spaceShip3 = await this.frontendFacade.createObject(FlyingObject, "smallSpaceFighter");
+        const spaceShip3 = await this.frontendFacade.createObject("bot3", FlyingObject, "smallSpaceFighter");
         spaceShip3.object3d.position.z = -100;
         spaceShip3.object3d.position.x = -3.5;
         spaceShip3.object3d.position.y = 4.5;
