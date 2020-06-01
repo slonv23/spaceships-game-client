@@ -2,7 +2,7 @@
 const path = require('path');
 const webpack = require('webpack'); 
 
-module.exports = {
+module.exports = (env) => ({
   entry: './src/index.js',
   mode: "development",
   /*optimization: {
@@ -31,7 +31,10 @@ module.exports = {
     new webpack.ProvidePlugin({
       THREE: 'three', //['three', 'default']
       //THREE: [path.resolve(__dirname, './src/three.js'), 'default']
-    })
+    }),
+    new webpack.DefinePlugin({
+      '__DEV__': env === 'dev' ? 'true' : 'false',
+    }),
   ],
   resolve: {
     symlinks: false,
@@ -43,4 +46,4 @@ module.exports = {
   resolveLoader: {
     modules: [path.resolve(__dirname, 'node_modules')]
   },
-};
+});

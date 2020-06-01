@@ -5,7 +5,7 @@
   "private": true,
   "main": "src/index.js",
   "scripts": {
-    "watch": "webpack --watch",
+    "watch": "webpack --watch --env dev",
     "build": "webpack",
     "test": "jest"
   },
@@ -30,7 +30,8 @@
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
-    "di-container-js": "^0.2.4",
+    "di-container-js": "^0.2.5",
+    "protobufjs": "~6.9.0",
     "three": "^0.110.0"
   },
   "type": "module",

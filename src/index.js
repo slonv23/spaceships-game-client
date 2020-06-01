@@ -8,7 +8,7 @@ import FlyingObject from "./engine/physics/object/FlyingObject";
 
 const filepaths = {
     "models": {
-      "smallSpaceFighter": "SmallSpaceFighter.glb"
+        "smallSpaceFighter": "SmallSpaceFighter.glb"
     },
     "sprites": {
         "aim": "aim-red.png"
@@ -18,9 +18,13 @@ const filepaths = {
 export class Game {
 
     async start() {
+        diContainer.configure('webRtcNetworkClient', {serverIp: '127.0.0.1', signalingServerPort: '8080'});
+        // eslint-disable-next-line no-undef
+        diContainer.configure('messageEncoderDecoder', {protoBundle: require('../../common/proto/bundle.json')});
+
         const webRtcNetworkClient = await diContainer.get('webRtcNetworkClient');
-        debugger;
         await webRtcNetworkClient.connect();
+
         /*this.frontendFacade = await createFrontendFacade(filepaths);
 
         const sprite = await this.frontendFacade.createSprite('aim');
@@ -31,6 +35,7 @@ export class Game {
         await this.addSpaceships();
 
         const gameObject = await this.frontendFacade.createObject(FlyingObject, "smallSpaceFighter");
+        // TODO rename switchControls to associate controls?
         this.frontendFacade.switchControls(controls.FLYING_OBJECT_CONTROLS, gameObject);
         this.frontendFacade.startGameLoop();*/
     }
