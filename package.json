@@ -34,6 +34,5 @@
     "protobufjs": "~6.9.0",
     "three": "^0.110.0"
   },
-  "type": "module",
   "sideEffects": false
 }
