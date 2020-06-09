@@ -3,7 +3,8 @@ import './engine/frontend';
 import './engine/net';
 
 import {createFrontendFacade, diContainer} from './engine';
-import {controls} from "./engine/frontend/control";
+import {controls} from "./engine/object-control";
+import {cameraManagers} from "./engine/frontend/camera";
 import FlyingObject from "./engine/physics/object/FlyingObject";
 
 const filepaths = {
@@ -36,7 +37,8 @@ export class Game {
 
         const gameObject = await this.frontendFacade.createObject("player1", FlyingObject, "smallSpaceFighter");
         // TODO rename switchControls to associate controls?
-        this.frontendFacade.switchControls(controls.FLYING_OBJECT_CONTROLS, gameObject);
+        await this.frontendFacade.attachControls(controls.FLYING_OBJECT_CONTROLS, gameObject);
+        await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER);
         this.frontendFacade.startGameLoop();
     }
 
