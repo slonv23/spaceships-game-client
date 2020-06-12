@@ -37,7 +37,7 @@ export class Game {
 
         const gameObject = await this.frontendFacade.createObject("player1", FlyingObject, "smallSpaceFighter");
         // TODO rename switchControls to associate controls?
-        await this.frontendFacade.attachControls(controls.FLYING_OBJECT_CONTROLS, gameObject);
+        await this.frontendFacade.attachControls(controls.FLYING_OBJECT_REMOTE_CONTROLS_TEST, gameObject);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER);
         this.frontendFacade.startGameLoop();
     }
