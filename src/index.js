@@ -2,7 +2,7 @@
 import './engine/frontend';
 import './engine/net';
 
-import {createFrontendFacade, diContainer} from './engine';
+import Engine from './engine';
 import {controls} from "./engine/object-control";
 import {cameraManagers} from "./engine/frontend/camera";
 import FlyingObject from "./engine/physics/object/FlyingObject";
@@ -19,14 +19,17 @@ const filepaths = {
 export class Game {
 
     async start() {
-        /*diContainer.configure('webRtcNetworkClient', {serverIp: '127.0.0.1', signalingServerPort: '8080'});
-        // eslint-disable-next-line no-undef
-        diContainer.configure('messageEncoderDecoder', {protoBundle: require('../../common/proto/bundle.json')});
+        Engine.setEnv("browser");
+        const diContainer = Engine.getDiContainer();
 
-        const webRtcNetworkClient = await diContainer.get('webRtcNetworkClient');
+        //diContainer.configure('webRtcNetworkClient', {serverIp: '127.0.0.1', signalingServerPort: '8080'});
+        // eslint-disable-next-line no-undef
+        diContainer.configure('messageSerializerDeserializer', {protoBundle: require('../../common/proto/bundle.json')});
+        const messageSerializerDeserializer = await diContainer.get('messageSerializerDeserializer');
+        /*const webRtcNetworkClient = await diContainer.get('webRtcNetworkClient');
         await webRtcNetworkClient.connect();*/
 
-        this.frontendFacade = await createFrontendFacade(filepaths);
+        this.frontendFacade = await Engine.createFrontendFacade(filepaths);
 
         const sprite = await this.frontendFacade.createSprite('aim');
         sprite.center.set(0.5, 0.5);
