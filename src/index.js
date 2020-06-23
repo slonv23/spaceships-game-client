@@ -33,16 +33,16 @@ export class Game extends Emitter {
         this._configure();
 
         /** @type {MultiplayerService} */
-        //const multiplayerService = await this.diContainer.get('multiplayerService');
-        //await multiplayerService.connect();
-        //await multiplayerService.requestSpawn();
+        const multiplayerService = await this.diContainer.get('multiplayerService');
+        await multiplayerService.connect();
+        await multiplayerService.requestSpawn();
 
-        this.frontendFacade = await Engine.createFrontendFacade(filepaths);
+        /*this.frontendFacade = await Engine.createFrontendFacade(filepaths);
         await this._addAimSprite();
 
         const controller = await this.frontendFacade.createObject("player1", FlyingObject, "smallSpaceFighter", controls.FLYING_OBJECT_CONTROLLER);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, controller);
-        this.frontendFacade.startGameLoop();
+        this.frontendFacade.startGameLoop();*/
 
         // await this.addSpaceships();
         // const gameObject = await this.frontendFacade.createObject("player1", FlyingObject, "smallSpaceFighter");
