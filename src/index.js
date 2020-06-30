@@ -1,5 +1,7 @@
 /**
  * @typedef {import('./engine/net/service/MultiplayerService').default} MultiplayerService
+ * @typedef {import('./engine/state/StateManager').default} StateManager
+ * @typedef {import('di-container-js').default} DiContainer
  */
 
 // initialize required modules
@@ -7,11 +9,10 @@ import './engine/frontend';
 import './engine/net';
 
 import Engine from './engine';
-import {controls} from "./engine/object-control";
+import {controllers} from "./engine/object-control";
 import {cameraManagers} from "./engine/frontend/camera";
 import FlyingObject from "./engine/physics/object/FlyingObject";
 import Emitter from './engine/util/Emitter';
-//import EventTarget from 'events';
 
 const filepaths = {
     "models": {
@@ -22,7 +23,18 @@ const filepaths = {
     }
 };
 
+const gameObjectTypes = {
+    SPACESHIP: 'spaceship',
+};
+
 export class Game extends Emitter {
+
+    /** @type {StateManager} */
+    stateManager;
+    /** @type {MultiplayerService} */
+    multiplayerService
+    /** @type {DiContainer} */
+    diContainer;
 
     constructor() {
         super();
@@ -30,32 +42,41 @@ export class Game extends Emitter {
     }
 
     async start() {
-        this._configure();
+        this._configureEngine();
+        await this._loadDependencies();
+        await this._prepareGameEnvironment();
 
-        /** @type {MultiplayerService} */
-        const multiplayerService = await this.diContainer.get('multiplayerService');
-        await multiplayerService.connect();
-        await multiplayerService.requestSpawn();
+        this.stateManager.registerGameObjectType(gameObjectTypes.SPACESHIP,
+                                                 FlyingObject,
+                                                 controllers.REMOTE_FLYING_OBJECT_CONTROLLER,
+                                                 "smallSpaceFighter");
+        this.stateManager.defaultGameObjectType = gameObjectTypes.SPACESHIP;
 
-        /*this.frontendFacade = await Engine.createFrontendFacade(filepaths);
-        await this._addAimSprite();
-
-        const controller = await this.frontendFacade.createObject("player1", FlyingObject, "smallSpaceFighter", controls.FLYING_OBJECT_CONTROLLER);
-        await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, controller);
-        this.frontendFacade.startGameLoop();*/
-
-        // await this.addSpaceships();
-        // const gameObject = await this.frontendFacade.createObject("player1", FlyingObject, "smallSpaceFighter");
-        // TODO rename switchControls to associate controls?
-        // await this.frontendFacade.attachControls(controls.FLYING_OBJECT_REMOTE_CONTROLS_TEST, gameObject);
-        // await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER);
-        // this.frontendFacade.startGameLoop();
+        await this.multiplayerService.connect();
+        const assignedObjectId = await this.multiplayerService.requestSpawn();
+        const playerGameObjectController = await this.stateManager.createObject(assignedObjectId,
+                                                                                gameObjectTypes.SPACESHIP,
+                                                                                controllers.FLYING_OBJECT_MP_CONTROLLER);
+        await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
+        this.frontendFacade.startGameLoop();
+        this.multiplayerService.startStateSync();
     }
 
-    _configure() {
+    _configureEngine() {
         Engine.setEnv("browser");
+        this.diContainer.configure('assetManager', {filepaths});
         this.diContainer.configure('webRtcNetworkClient', {serverIp: '127.0.0.1', signalingServerPort: '8080'});
         this.diContainer.configure('messageSerializerDeserializer', {protoBundle: require('../../common/proto/bundle.json')});
+    }
+
+    async _loadDependencies() {
+        this.frontendFacade = await this.diContainer.get("frontendFacade");
+        this.stateManager = await this.diContainer.get('stateManager');
+        this.multiplayerService = await this.diContainer.get('multiplayerService');
+    }
+
+    async _prepareGameEnvironment() {
+        await this._addAimSprite();
     }
 
     async _addAimSprite() {
