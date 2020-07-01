@@ -52,14 +52,15 @@ export class Game extends Emitter {
                                                  "smallSpaceFighter");
         this.stateManager.defaultGameObjectType = gameObjectTypes.SPACESHIP;
 
-        await this.multiplayerService.connect();
-        const assignedObjectId = await this.multiplayerService.requestSpawn();
+        //await this.multiplayerService.connect();
+        //const assignedObjectId = await this.multiplayerService.requestSpawn();
+        const assignedObjectId = 1;
         const playerGameObjectController = await this.stateManager.createObject(assignedObjectId,
                                                                                 gameObjectTypes.SPACESHIP,
-                                                                                controllers.FLYING_OBJECT_MP_CONTROLLER);
+                                                                                controllers.FLYING_OBJECT_SP_CONTROLLER);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
         this.frontendFacade.startGameLoop();
-        this.multiplayerService.startStateSync();
+        //this.multiplayerService.startStateSync();
     }
 
     _configureEngine() {
