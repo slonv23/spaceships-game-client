@@ -1,6 +1,6 @@
 /**
  * @typedef {import('./engine/net/service/MultiplayerService').default} MultiplayerService
- * @typedef {import('./engine/state/StateManager').default} StateManager
+ * @typedef {import('./engine/state/MultiplayerStateManager').default} MultiplayerStateManager
  * @typedef {import('di-container-js').default} DiContainer
  */
 
@@ -29,10 +29,10 @@ const gameObjectTypes = {
 
 export class Game extends Emitter {
 
-    /** @type {StateManager} */
+    /** @type {MultiplayerStateManager} */
     stateManager;
     /** @type {MultiplayerService} */
-    multiplayerService
+    multiplayerService;
     /** @type {DiContainer} */
     diContainer;
 
@@ -52,15 +52,27 @@ export class Game extends Emitter {
                                                  "smallSpaceFighter");
         this.stateManager.defaultGameObjectType = gameObjectTypes.SPACESHIP;
 
-        //await this.multiplayerService.connect();
-        //const assignedObjectId = await this.multiplayerService.requestSpawn();
+        await this.startInMultiplayerMode();
+    }
+
+    async startInMultiplayerMode() {
+        await this.multiplayerService.connect();
+        const assignedObjectId = await this.multiplayerService.requestSpawn();
+        const playerGameObjectController = await this.stateManager.createObject(assignedObjectId,
+                                                                                gameObjectTypes.SPACESHIP,
+                                                                                controllers.FLYING_OBJECT_MP_CONTROLLER);
+        await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
+        this.frontendFacade.startGameLoop();
+        this.multiplayerService.startStateSync();
+    }
+
+    async startInSinglePlayerMode() {
         const assignedObjectId = 1;
         const playerGameObjectController = await this.stateManager.createObject(assignedObjectId,
                                                                                 gameObjectTypes.SPACESHIP,
                                                                                 controllers.FLYING_OBJECT_SP_CONTROLLER);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
         this.frontendFacade.startGameLoop();
-        //this.multiplayerService.startStateSync();
     }
 
     _configureEngine() {
@@ -72,7 +84,7 @@ export class Game extends Emitter {
 
     async _loadDependencies() {
         this.frontendFacade = await this.diContainer.get("frontendFacade");
-        this.stateManager = await this.diContainer.get('stateManager');
+        this.stateManager = await this.diContainer.get('multiplayerStateManager');
         this.multiplayerService = await this.diContainer.get('multiplayerService');
     }
 
