@@ -24,7 +24,7 @@ const filepaths = {
 };
 
 const gameObjectTypes = {
-    SPACESHIP: 'spaceship',
+    SPACESHIP: 1,
 };
 
 export class Game extends Emitter {
