@@ -56,6 +56,12 @@ export class Game extends Emitter {
     }
 
     async startInMultiplayerMode() {
+        const pingDisplay = document.getElementById('ping');
+        this.multiplayerService.addEventListener('ping', (event) => {
+            console.log('Ping: ' + event.detail);
+            pingDisplay.innerText = event.detail;
+        });
+
         await this.multiplayerService.connect();
         const assignedObjectId = await this.multiplayerService.requestSpawn();
         const playerGameObjectController = await this.stateManager.createController(assignedObjectId,
