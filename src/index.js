@@ -27,6 +27,8 @@ const gameObjectTypes = {
     SPACESHIP: 1,
 };
 
+const globalConfig = require('../../config.json');
+
 export class Game extends Emitter {
 
     /** @type {MultiplayerStateManager} */
@@ -66,8 +68,9 @@ export class Game extends Emitter {
         const assignedObjectId = await this.multiplayerService.requestSpawn();
         const playerGameObjectController = await this.stateManager.createController(assignedObjectId,
                                                                                     controllers.FLYING_OBJECT_MP_CONTROLLER);
-        this.stateManager.setPlayerController(playerGameObjectController);
+        this.stateManager.specifyPlayerControllerAndControlledObject(assignedObjectId, playerGameObjectController);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
+
         this.frontendFacade.startGameLoop();
         this.multiplayerService.startStateSync();
     }
@@ -86,6 +89,15 @@ export class Game extends Emitter {
         this.diContainer.configure('assetManager', {filepaths});
         this.diContainer.configure('webRtcNetworkClient', {serverIp: '127.0.0.1', signalingServerPort: '8080'});
         this.diContainer.configure('messageSerializerDeserializer', {protoBundle: require('../../common/proto/bundle.json')});
+        // TODO create model or separate component (e.g. MultiplayerConfiguration)
+        //  which could be shared btw components
+        this.diContainer.configure('multiplayerStateManager', {
+            packetPeriodFrames: globalConfig.packetPeriodFrames,
+            inputGatheringPeriodFrames: globalConfig.inputGatheringPeriodFrames,
+            fps: globalConfig.fps,
+        });
+        this.diContainer.configure('frontendFacade', {fps: globalConfig.fps});
+        this.diContainer.configure('multiplayerService', {fps: globalConfig.fps});
     }
 
     async _loadDependencies() {
