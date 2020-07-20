@@ -66,6 +66,7 @@ export class Game extends Emitter {
         const assignedObjectId = await this.multiplayerService.requestSpawn();
         const playerGameObjectController = await this.stateManager.createController(assignedObjectId,
                                                                                     controllers.FLYING_OBJECT_MP_CONTROLLER);
+        this.stateManager.setPlayerController(playerGameObjectController);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
         this.frontendFacade.startGameLoop();
         this.multiplayerService.startStateSync();
