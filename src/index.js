@@ -4,9 +4,11 @@
  * @typedef {import('di-container-js').default} DiContainer
  */
 
-// initialize required modules
+// register required modules
 import './engine/frontend';
 import './engine/net';
+// register default logger
+import './engine/logging';
 
 import Engine from './engine';
 import {controllers} from "./engine/object-control";
@@ -60,7 +62,6 @@ export class Game extends Emitter {
     async startInMultiplayerMode() {
         const pingDisplay = document.getElementById('ping');
         this.multiplayerService.addEventListener('ping', (event) => {
-            console.log('Ping: ' + event.detail);
             pingDisplay.innerText = event.detail;
         });
 
