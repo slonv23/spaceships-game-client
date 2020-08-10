@@ -17,11 +17,11 @@ import FlyingObject from "./engine/physics/object/FlyingObject";
 import Emitter from './engine/util/Emitter';
 
 const filepaths = {
-    "models": {
-        "smallSpaceFighter": "SmallSpaceFighter.glb"
+    assets3d: {
+        smallSpaceFighter: "SmallSpaceFighter.glb"
     },
-    "sprites": {
-        "aim": "aim-red.png"
+    sprites: {
+        aim: "aim-red.png"
     }
 };
 

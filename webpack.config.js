@@ -24,7 +24,11 @@ module.exports = (env) => ({
           presets: ['es2015'],
           plugins: ["transform-class-properties"]
         }
-      }
+      },
+      {
+        test: /\.txt$/i,
+        use: 'raw-loader',
+      },
     ]
   },
   plugins: [
