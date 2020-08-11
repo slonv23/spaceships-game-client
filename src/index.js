@@ -13,8 +13,8 @@ import './engine/logging';
 import Engine from './engine';
 import {controllers} from "./engine/object-control";
 import {cameraManagers} from "./engine/frontend/camera";
-import FlyingObject from "./engine/physics/object/FlyingObject";
 import Emitter from './engine/util/Emitter';
+import {spaceFighterFactory} from "./game-objects";
 
 const filepaths = {
     assets3d: {
@@ -50,10 +50,7 @@ export class Game extends Emitter {
         await this._loadDependencies();
         await this._prepareGameEnvironment();
 
-        this.stateManager.registerGameObjectType(gameObjectTypes.SPACESHIP,
-                                                 FlyingObject,
-                                                 controllers.REMOTE_FLYING_OBJECT_CONTROLLER,
-                                                 "smallSpaceFighter");
+        this.stateManager.registerGameObjectType(gameObjectTypes.SPACESHIP, spaceFighterFactory, controllers.REMOTE_SPACE_FIGHTER_CONTROLLER);
         this.stateManager.defaultGameObjectType = gameObjectTypes.SPACESHIP;
 
         await this.startInMultiplayerMode();
@@ -67,8 +64,8 @@ export class Game extends Emitter {
 
         await this.multiplayerService.connect();
         const assignedObjectId = await this.multiplayerService.requestSpawn();
-        const playerGameObjectController = await this.stateManager.createController(assignedObjectId,
-                                                                                    controllers.FLYING_OBJECT_MP_CONTROLLER);
+        const playerGameObjectController = await this.stateManager.createObjectController(assignedObjectId,
+                                                                                          controllers.SPACE_FIGHTER_MP_CONTROLLER);
         this.stateManager.specifyPlayerControllerAndControlledObject(assignedObjectId, playerGameObjectController);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
 
@@ -80,7 +77,7 @@ export class Game extends Emitter {
         const assignedObjectId = 1;
         const playerGameObjectController = await this.stateManager.createObject(assignedObjectId,
                                                                                 gameObjectTypes.SPACESHIP,
-                                                                                controllers.FLYING_OBJECT_SP_CONTROLLER);
+                                                                                controllers.SPACE_FIGHTER_SP_CONTROLLER);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
         this.frontendFacade.startGameLoop();
     }
