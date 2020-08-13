@@ -18,7 +18,7 @@ import {spaceFighterFactory} from "./game-objects";
 
 const filepaths = {
     assets3d: {
-        smallSpaceFighter: "SmallSpaceFighter.glb"
+        spaceFighter: "StarSparrow2.glb"
     },
     sprites: {
         aim: "aim-red.png"

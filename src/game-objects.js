@@ -10,10 +10,14 @@ import SpaceFighter from "./engine/physics/object/SpaceFighter";
  * @returns {SpaceFighter}
  */
 export function spaceFighterFactory(objectId, assetManager) {
-    const asset = assetManager.get3dAsset('smallSpaceFighter');
+    const asset = assetManager.get3dAsset('spaceFighter');
 
-    const model = asset.scene.children[0].children[0].clone();
+    const model = asset.scene.children[0].clone(); //asset.scene.children[0].children[0].clone();
     model.matrixAutoUpdate = false;
 
     return new SpaceFighter(objectId, model);
+}
+
+export function gunRoundFactory(objectId, assetManager) {
+
 }

@@ -39,6 +39,7 @@ module.exports = (env) => ({
     new webpack.DefinePlugin({
       '__DEV__': env === 'dev' ? 'true' : 'false',
     }),
+    new webpack.IgnorePlugin({resourceRegExp: /^fs$|^path$/})
   ],
   resolve: {
     symlinks: false,
