@@ -7,14 +7,15 @@
 // register required modules
 import './engine/frontend';
 import './engine/net';
-// register default logger
 import './engine/logging';
+// register controllers
+import './controllers';
 
 import Engine from './engine';
-import {controllers} from "./engine/object-control";
 import {cameraManagers} from "./engine/frontend/camera";
 import Emitter from './engine/util/Emitter';
 import {spaceFighterFactory} from "./game-objects";
+import {controllers} from "./controllers";
 
 const filepaths = {
     assets3d: {
@@ -50,9 +51,7 @@ export class Game extends Emitter {
         await this._loadDependencies();
         await this._prepareGameEnvironment();
 
-        this.stateManager.registerGameObjectType(gameObjectTypes.SPACESHIP, spaceFighterFactory, controllers.REMOTE_SPACE_FIGHTER_CONTROLLER);
-        this.stateManager.defaultGameObjectType = gameObjectTypes.SPACESHIP;
-
+        this.stateManager.associateControllerWithGameObjectType(gameObjectTypes.SPACESHIP, controllers.REMOTE_SPACE_FIGHTER_CONTROLLER);
         await this.startInMultiplayerMode();
     }
 
@@ -73,14 +72,14 @@ export class Game extends Emitter {
         this.multiplayerService.startStateSync();
     }
 
-    async startInSinglePlayerMode() {
+    /*async startInSinglePlayerMode() {
         const assignedObjectId = 1;
         const playerGameObjectController = await this.stateManager.createObject(assignedObjectId,
                                                                                 gameObjectTypes.SPACESHIP,
                                                                                 controllers.SPACE_FIGHTER_SP_CONTROLLER);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
         this.frontendFacade.startGameLoop();
-    }
+    }*/
 
     _configureEngine() {
         Engine.setEnv("browser");

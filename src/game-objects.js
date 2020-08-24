@@ -20,7 +20,7 @@ export function spaceFighterFactory(objectId, assetManager) {
     return new SpaceFighter(objectId, model);
 }
 
-export function gunRoundFactory(objectId) {
+export function gunProjectileFactory(objectId) {
     const geometry = new THREE.SphereGeometry(0.1, 16, 16);
     geometry.applyMatrix(new THREE.Matrix4().makeScale( 1.0, 1.0, 4.0));
 
