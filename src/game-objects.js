@@ -5,6 +5,8 @@ import * as THREE from 'three';
 
 import SpaceFighter from "./engine/physics/object/SpaceFighter";
 import DirectionalProjectile from "./engine/physics/object/DirectionalProjectile";
+import GunRoundFragShader from "./engine/frontend/shader/gun-round.frag";
+import GunRoundVertShader from "./engine/frontend/shader/gun-round.vert"
 
 /**
  * @param {number} objectId
@@ -25,8 +27,8 @@ export function gunProjectileFactory(objectId) {
     geometry.applyMatrix(new THREE.Matrix4().makeScale( 1.0, 1.0, 4.0));
 
     const material = new THREE.ShaderMaterial({
-        vertexShader:   document.getElementById('plasma-blast-vertex-shader').textContent,
-        fragmentShader: document.getElementById('plasma-blast-fragment-shader').textContent,
+        vertexShader:   GunRoundVertShader,
+        fragmentShader: GunRoundFragShader,
         transparent: true,
     });
 

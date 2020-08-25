@@ -26,7 +26,7 @@ module.exports = (env) => ({
         }
       },
       {
-        test: /\.txt$/i,
+        test: /(\.txt)|(\.frag)|(\.vert)$/i,
         use: 'raw-loader',
       },
     ]
