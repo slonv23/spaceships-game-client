@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 
 import SpaceFighter from "./engine/physics/object/SpaceFighter";
-import {DirectionalProjectile} from "./engine/physics/object/DirectionalProjectile";
+import DirectionalProjectile from "./engine/physics/object/DirectionalProjectile";
 
 /**
  * @param {number} objectId

@@ -14,7 +14,6 @@ import './controllers';
 import Engine from './engine';
 import {cameraManagers} from "./engine/frontend/camera";
 import Emitter from './engine/util/Emitter';
-import {spaceFighterFactory} from "./game-objects";
 import {controllers} from "./controllers";
 
 const filepaths = {
