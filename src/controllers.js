@@ -14,6 +14,7 @@ export const controllers = Object.freeze({
 
 diContainer.registerClass(controllers.SPACE_FIGHTER_MP_CONTROLLER, SpaceFighterMultiplayerController, {
     gameObjectFactory: spaceFighterFactory,
+    projectileSequenceControllerRef: controllers.SPACE_FIGHTER_GUN_PROJECTILES,
 });
 diContainer.registerClass(controllers.REMOTE_SPACE_FIGHTER_CONTROLLER, RemoteSpaceFighterController, {
     gameObjectFactory: spaceFighterFactory,

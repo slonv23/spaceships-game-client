@@ -24,7 +24,7 @@ export function spaceFighterFactory(objectId, assetManager) {
 
 export function gunProjectileFactory(objectId) {
     const geometry = new THREE.SphereGeometry(0.1, 16, 16);
-    geometry.applyMatrix(new THREE.Matrix4().makeScale( 1.0, 1.0, 4.0));
+    geometry.applyMatrix(new THREE.Matrix4().makeScale( 2.0, 2.0, 8.0)); // 1 1 4
 
     const material = new THREE.ShaderMaterial({
         vertexShader:   GunRoundVertShader,
