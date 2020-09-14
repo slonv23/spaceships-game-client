@@ -20,8 +20,15 @@ module.exports = (env) => ({
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        query: {
-          presets: ['es2015'],
+        options: {
+          presets: [[
+            "@babel/preset-env",
+            {
+              targets: {
+                esmodules: true,
+              },
+            }
+          ]],
           plugins: ["transform-class-properties"]
         }
       },
