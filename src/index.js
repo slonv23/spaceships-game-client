@@ -8,13 +8,13 @@
 import './engine/frontend';
 import './engine/net';
 import './engine/logging';
-// register controllers
-import './controllers';
 
 import Engine from './engine';
 import {cameraManagers} from "./engine/frontend/camera";
 import Emitter from './engine/util/Emitter';
-import {controllers} from "./controllers";
+import ProjectileSequenceController from "./engine/object-control/projectile/ProjectileSequenceController";
+import SpaceFighterMultiplayerController from "./engine/object-control/space-fighter/SpaceFighterMultiplayerController";
+import RemoteSpaceFighterController from "./engine/object-control/space-fighter/RemoteSpaceFighterController";
 
 const filepaths = {
     assets3d: {
@@ -50,7 +50,13 @@ export class Game extends Emitter {
         await this._loadDependencies();
         await this._prepareGameEnvironment();
 
-        this.stateManager.associateControllerWithGameObjectType(gameObjectTypes.SPACESHIP, controllers.REMOTE_SPACE_FIGHTER_CONTROLLER);
+        this.projectileSequenceControllerFactory = await this.diContainer.createFactory(ProjectileSequenceController);
+        this.spaceFighterMultiplayerControllerFactory = await this.diContainer.createFactory(SpaceFighterMultiplayerController);
+        this.remoteSpaceFighterControllerFactory = await this.diContainer.createFactory(RemoteSpaceFighterController);
+
+        this.diContainer.provide('projectileSequenceControllerFactory', this.projectileSequenceControllerFactory);
+        this.stateManager.associateControllerFactoryWithGameObjectType(gameObjectTypes.SPACESHIP,
+                                                                       this.remoteSpaceFighterControllerFactory);
         await this.startInMultiplayerMode();
     }
 
@@ -62,8 +68,9 @@ export class Game extends Emitter {
 
         await this.multiplayerService.connect();
         const assignedObjectId = await this.multiplayerService.requestSpawn();
+
         const playerGameObjectController = await this.stateManager.createObjectController(assignedObjectId,
-                                                                                          controllers.SPACE_FIGHTER_MP_CONTROLLER);
+                                                                                          this.spaceFighterMultiplayerControllerFactory);
         this.stateManager.specifyPlayerControllerAndControlledObject(assignedObjectId, playerGameObjectController);
         await this.frontendFacade.attachCameraManager(cameraManagers.FLYING_OBJECT_CAMERA_MANAGER, playerGameObjectController);
 
