@@ -51,10 +51,10 @@ export class Game extends Emitter {
         await this._prepareGameEnvironment();
 
         this.projectileSequenceControllerFactory = await this.diContainer.createFactory(ProjectileSequenceController);
+        this.diContainer.provide('projectileSequenceControllerFactory', this.projectileSequenceControllerFactory);
         this.spaceFighterMultiplayerControllerFactory = await this.diContainer.createFactory(SpaceFighterMultiplayerController);
         this.remoteSpaceFighterControllerFactory = await this.diContainer.createFactory(RemoteSpaceFighterController);
 
-        this.diContainer.provide('projectileSequenceControllerFactory', this.projectileSequenceControllerFactory);
         this.stateManager.associateControllerFactoryWithGameObjectType(gameObjectTypes.SPACESHIP,
                                                                        this.remoteSpaceFighterControllerFactory);
         await this.startInMultiplayerMode();
@@ -120,4 +120,18 @@ export class Game extends Emitter {
         // sprite.scale.set(sprite.material.map.image.width, sprite.material.map.image.height, 1);
     }
 
+}
+
+// WORKAROUND FOR SHADER IMPORTS
+
+import GunRoundVertShader from "./engine/frontend/shader/gun-round.vert";
+import GunRoundFragShader from "./engine/frontend/shader/gun-round.frag";
+import * as THREE from "three";
+
+ProjectileSequenceController.prototype.createProjectileMaterial = function() {
+    return new THREE.ShaderMaterial({
+        vertexShader:   GunRoundVertShader,
+        fragmentShader: GunRoundFragShader,
+        transparent: true,
+    });
 }
