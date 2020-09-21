@@ -1,6 +1,6 @@
 /**
  * @typedef {import('./engine/net/service/MultiplayerService').default} MultiplayerService
- * @typedef {import('./engine/state/MultiplayerStateManager').default} MultiplayerStateManager
+ * @typedef {import('./engine/state/multiplayer-state-manager/MultiplayerStateManager').default} MultiplayerStateManager
  * @typedef {import('di-container-js').default} DiContainer
  */
 
@@ -8,6 +8,7 @@
 import './engine/frontend';
 import './engine/net';
 import './engine/logging';
+import './engine/state/multiplayer-state-manager';
 
 import Engine from './engine';
 import {cameraManagers} from "./engine/frontend/camera";
@@ -94,7 +95,7 @@ export class Game extends Emitter {
         this.diContainer.configure('messageSerializerDeserializer', {protoBundle: require('../../common/proto/bundle.json')});
         // TODO create model or separate component (e.g. MultiplayerConfiguration)
         //  which could be shared btw components
-        this.diContainer.configure('multiplayerStateManager', {
+        this.diContainer.configure('stateManager', {
             packetPeriodFrames: globalConfig.packetPeriodFrames,
             inputGatheringPeriodFrames: globalConfig.inputGatheringPeriodFrames,
             fps: globalConfig.fps,
@@ -105,7 +106,7 @@ export class Game extends Emitter {
 
     async _loadDependencies() {
         this.frontendFacade = await this.diContainer.get("frontendFacade");
-        this.stateManager = await this.diContainer.get('multiplayerStateManager');
+        this.stateManager = await this.diContainer.get('stateManager');
         this.multiplayerService = await this.diContainer.get('multiplayerService');
     }
 
