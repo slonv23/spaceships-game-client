@@ -10,7 +10,7 @@ import AuthoritativeStateManager from "./engine/state/authoritative-state-manage
 import {DiContainer} from "di-container-js";
 import FlyingObject from "./engine/physics/object/FlyingObject";
 
-test('should return find intersection if inside of object', async () => {
+test('should find intersection if inside of object', async () => {
     const direction = new THREE.Vector3(1, 0, 0);
     const projectile1 = createProjectile(new THREE.Vector3(0, 0, 0), direction);
 
@@ -25,9 +25,9 @@ test('should return find intersection if inside of object', async () => {
 
 test('should not check intersections with all projectiles if first one is behind an object', async () => {
     const direction = new THREE.Vector3(1, 0, 0);
-    const projectile1 = createProjectile(new THREE.Vector3(12, 0, 0), direction);
-    const projectile2 = createProjectile(new THREE.Vector3(13, 0, 0), direction);
-    const projectile3 = createProjectile(new THREE.Vector3(14, 0, 0), direction);
+    const projectile1 = createProjectile(new THREE.Vector3(-13, 0, 0), direction);
+    const projectile2 = createProjectile(new THREE.Vector3(-14, 0, 0), direction);
+    const projectile3 = createProjectile(new THREE.Vector3(-15, 0, 0), direction);
 
     const projectileSequenceController = createProjectileSequenceController();
     projectileSequenceController.projectiles = [projectile1, projectile2, projectile3];
@@ -39,6 +39,24 @@ test('should not check intersections with all projectiles if first one is behind
 
     expect(result).toBe(null);
     expect(projectileSequenceController.isProjectileIntersectsWithObject.mock.calls.length).toBe(1);
+});
+
+test('should not check intersections with all projectiles if last one is ahead of an object', async () => {
+    const direction = new THREE.Vector3(1, 0, 0);
+    const projectile1 = createProjectile(new THREE.Vector3(15, 0, 0), direction);
+    const projectile2 = createProjectile(new THREE.Vector3(14, 0, 0), direction);
+    const projectile3 = createProjectile(new THREE.Vector3(13, 0, 0), direction);
+
+    const projectileSequenceController = createProjectileSequenceController();
+    projectileSequenceController.projectiles = [projectile1, projectile2, projectile3];
+
+    const gameObject = createDummyBox();
+
+    projectileSequenceController.isProjectileIntersectsWithObject = jest.fn(projectileSequenceController.isProjectileIntersectsWithObject);
+    const result = projectileSequenceController.findHitsWithObject(gameObject);
+
+    expect(result).toBe(null);
+    expect(projectileSequenceController.isProjectileIntersectsWithObject.mock.calls.length).toBe(2);
 });
 
 function createProjectile(position, direction) {
