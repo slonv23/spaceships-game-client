@@ -1,4 +1,4 @@
-module.exports = {
+/*module.exports = {
     "presets": [[
         "@babel/preset-env",
         {
@@ -10,3 +10,4 @@ module.exports = {
     ]],
     "plugins": ["transform-class-properties", "@babel/plugin-transform-runtime", '@babel/plugin-transform-regenerator']
 };
+*/

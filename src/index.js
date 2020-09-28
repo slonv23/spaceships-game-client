@@ -16,6 +16,7 @@ import Emitter from './engine/util/Emitter';
 import ProjectileSequenceController from "./engine/object-control/projectile/ProjectileSequenceController";
 import SpaceFighterMultiplayerController from "./engine/object-control/space-fighter/SpaceFighterMultiplayerController";
 import RemoteSpaceFighterController from "./engine/object-control/space-fighter/RemoteSpaceFighterController";
+import HudController from "./engine/object-control/HudController";
 
 const filepaths = {
     assets3d: {
@@ -50,6 +51,10 @@ export class Game extends Emitter {
         this._configureEngine();
         await this._loadDependencies();
         await this._prepareGameEnvironment();
+        await this._setCubeMap();
+
+        const hubController = await this.diContainer.constructExternal(HudController);
+        this.stateManager.addController(hubController);
 
         this.projectileSequenceControllerFactory = await this.diContainer.createFactory(ProjectileSequenceController);
         this.diContainer.provide('projectileSequenceControllerFactory', this.projectileSequenceControllerFactory);
@@ -119,6 +124,19 @@ export class Game extends Emitter {
         sprite.center.set(0.5, 0.5);
         sprite.scale.set(64, 64, 1);
         // sprite.scale.set(sprite.material.map.image.width, sprite.material.map.image.height, 1);
+    }
+
+    async _setCubeMap() {
+        const loader = new THREE.CubeTextureLoader();
+        const texture = loader.load([
+            'assets/cubemap/px.jpg',
+            'assets/cubemap/nx.jpg',
+            'assets/cubemap/py.jpg',
+            'assets/cubemap/ny.jpg',
+            'assets/cubemap/pz.jpg',
+            'assets/cubemap/nz.jpg',
+        ]);
+        this.frontendFacade.renderer.scene.background = texture;
     }
 
 }
