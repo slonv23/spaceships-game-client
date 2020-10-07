@@ -19,7 +19,7 @@ test('should find intersection if inside of object', async () => {
 
     const gameObject = createDummyBox();
 
-    const result = projectileSequenceController.findHitsWithObject(gameObject);
+    const result = projectileSequenceController.findProjectilesIntersectedWithObject(gameObject);
     expect(result.length).toBe(1);
 });
 
@@ -35,7 +35,7 @@ test('should not check intersections with all projectiles if first one is behind
     const gameObject = createDummyBox();
 
     projectileSequenceController.isProjectileIntersectsWithObject = jest.fn(projectileSequenceController.isProjectileIntersectsWithObject);
-    const result = projectileSequenceController.findHitsWithObject(gameObject);
+    const result = projectileSequenceController.findProjectilesIntersectedWithObject(gameObject);
 
     expect(result).toBe(null);
     expect(projectileSequenceController.isProjectileIntersectsWithObject.mock.calls.length).toBe(1);
@@ -53,7 +53,7 @@ test('should not check intersections with all projectiles if last one is ahead o
     const gameObject = createDummyBox();
 
     projectileSequenceController.isProjectileIntersectsWithObject = jest.fn(projectileSequenceController.isProjectileIntersectsWithObject);
-    const result = projectileSequenceController.findHitsWithObject(gameObject);
+    const result = projectileSequenceController.findProjectilesIntersectedWithObject(gameObject);
 
     expect(result).toBe(null);
     expect(projectileSequenceController.isProjectileIntersectsWithObject.mock.calls.length).toBe(2);

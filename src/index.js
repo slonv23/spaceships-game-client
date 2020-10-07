@@ -58,6 +58,8 @@ export class Game extends Emitter {
 
         this.projectileSequenceControllerFactory = await this.diContainer.createFactory(ProjectileSequenceController);
         this.diContainer.provide('projectileSequenceControllerFactory', this.projectileSequenceControllerFactory);
+
+        applyMixin(SpaceFighterMultiplayerController, handleProjectileHitsMixin);
         this.spaceFighterMultiplayerControllerFactory = await this.diContainer.createFactory(SpaceFighterMultiplayerController);
         this.remoteSpaceFighterControllerFactory = await this.diContainer.createFactory(RemoteSpaceFighterController);
 
@@ -146,6 +148,8 @@ export class Game extends Emitter {
 import GunRoundVertShader from "./engine/frontend/shader/gun-round.vert";
 import GunRoundFragShader from "./engine/frontend/shader/gun-round.frag";
 import * as THREE from "three";
+import applyMixin from "./engine/util/apply-mixin";
+import {handleProjectileHitsMixin} from "./engine/object-control/space-fighter/_mixins";
 
 ProjectileSequenceController.prototype.createProjectileMaterial = function() {
     return new THREE.ShaderMaterial({
