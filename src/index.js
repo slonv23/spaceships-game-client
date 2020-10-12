@@ -1,5 +1,5 @@
 /**
- * @typedef {import('./engine/net/service/MultiplayerService').default} MultiplayerService
+ * @typedef {import('./engine/net/service/multiplayer-service/MultiplayerService').default} MultiplayerService
  * @typedef {import('./engine/state/multiplayer-state-manager/MultiplayerStateManager').default} MultiplayerStateManager
  * @typedef {import('di-container-js').default} DiContainer
  */
