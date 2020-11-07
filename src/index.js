@@ -17,13 +17,20 @@ import ProjectileSequenceController from "./engine/object-control/projectile/Pro
 import SpaceFighterMultiplayerController from "./engine/object-control/space-fighter/SpaceFighterMultiplayerController";
 import RemoteSpaceFighterController from "./engine/object-control/space-fighter/RemoteSpaceFighterController";
 import HudController from "./engine/object-control/HudController";
+import {SpaceFighterExplosionControllerFactory} from "./engine/object-control/effects/SpaceFighterExplosionControllerFactory";
+import applyMixin from "./engine/util/apply-mixin";
+import {explosionMixin} from "./engine/object-control/space-fighter/_mixins";
 
 const filepaths = {
     assets3d: {
-        spaceFighter: "StarSparrow2.glb"
+        spaceFighter: "StarSparrow2.glb",
+        spaceFighterFractured: "StarSparrow_fractured.glb"
     },
     sprites: {
         aim: "aim-red.png"
+    },
+    textures: {
+        smoke: "smokeparticle.png"
     }
 };
 
@@ -58,8 +65,10 @@ export class Game extends Emitter {
 
         this.projectileSequenceControllerFactory = await this.diContainer.createFactory(ProjectileSequenceController);
         this.diContainer.provide('projectileSequenceControllerFactory', this.projectileSequenceControllerFactory);
+        this.diContainer.registerClass('spaceFighterExplosionControllerFactory', SpaceFighterExplosionControllerFactory);
 
-        applyMixin(SpaceFighterMultiplayerController, handleProjectileHitsMixin);
+        applyMixin(RemoteSpaceFighterController, explosionMixin, ['spaceFighterExplosionControllerFactory']);
+        applyMixin(SpaceFighterMultiplayerController, explosionMixin, ['spaceFighterExplosionControllerFactory']);
         this.spaceFighterMultiplayerControllerFactory = await this.diContainer.createFactory(SpaceFighterMultiplayerController);
         this.remoteSpaceFighterControllerFactory = await this.diContainer.createFactory(RemoteSpaceFighterController);
 
@@ -144,12 +153,12 @@ export class Game extends Emitter {
 }
 
 // WORKAROUND FOR SHADER IMPORTS
+// TODO maybe we can use dynamic imports?
+//  or we can place mixin to separate file
 
 import GunRoundVertShader from "./engine/frontend/shader/gun-round.vert";
 import GunRoundFragShader from "./engine/frontend/shader/gun-round.frag";
 import * as THREE from "three";
-import applyMixin from "./engine/util/apply-mixin";
-import {handleProjectileHitsMixin} from "./engine/object-control/space-fighter/_mixins";
 
 ProjectileSequenceController.prototype.createProjectileMaterial = function() {
     return new THREE.ShaderMaterial({
