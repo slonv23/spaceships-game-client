@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "di-container-js": "^0.4.2",
-    "protobufjs": "~6.9.0",
+    "protobufjs": "~6.11.3",
     "three": "^0.121.1"
   },
   "sideEffects": false
